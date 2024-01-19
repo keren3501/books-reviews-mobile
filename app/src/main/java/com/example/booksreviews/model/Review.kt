@@ -1,10 +1,25 @@
 package com.example.booksreviews.model
 
+import android.net.Uri
+
 data class Review(
-    val id: Int,
-    val userId: Int,
-    val bookCoverPath: String,
-    val bookTitle: String,
-    val authorName: String,
-    val reviewText: String
-)
+    var id: Int,
+    var userId: Int,
+    var bookCoverUri: Uri,
+    var bookTitle: String,
+    var authorName: String,
+    var reviewText: String
+) {
+    // Empty constructor (default constructor)
+    constructor() : this(-1, -1, Uri.EMPTY, "", "", "")
+
+    // Copy constructor
+    constructor(review: Review) : this(
+        review.id,
+        review.userId,
+        review.bookCoverUri,
+        review.bookTitle,
+        review.authorName,
+        review.reviewText
+    )
+}

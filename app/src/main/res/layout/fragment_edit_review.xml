@@ -7,7 +7,7 @@
     <!-- Cover Image -->
     <ImageView
         android:id="@+id/coverImage"
-        android:layout_width="match_parent"
+        android:layout_width="100dp"
         android:layout_height="150dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_launcher_foreground"

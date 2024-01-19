@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.booksreviews.R
 import com.example.booksreviews.databinding.ItemReviewBinding
 import com.example.booksreviews.model.Review
 
@@ -44,6 +46,12 @@ class ReviewsAdapter(
             binding.bookTitle.text = review.bookTitle
             binding.authorName.text = review.authorName
             binding.reviewText.text = review.reviewText
+
+            Glide.with(binding.root.context)
+                .load(review.bookCoverUri)
+                .error(R.drawable.ic_launcher_foreground)
+                .override(100, 150)
+                .into(binding.coverImage)
 
             if (onDeleteClickListener != null && currUserId == review.userId) {
                 binding.iconDelete.visibility = View.VISIBLE

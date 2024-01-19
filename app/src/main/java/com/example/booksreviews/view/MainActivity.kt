@@ -2,13 +2,10 @@ package com.example.booksreviews.view;
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.booksreviews.R
-import com.example.booksreviews.model.Review
-import com.example.booksreviews.viewmodel.ReviewsViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,7 +21,5 @@ class MainActivity : AppCompatActivity() {
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        ViewModelProvider(this).get(ReviewsViewModel::class.java).addReview(Review(0,0, "keren", "keren", "keren", "keren"))
     }
 }
