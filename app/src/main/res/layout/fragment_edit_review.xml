@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Cover Image -->
+    <ImageView
+        android:id="@+id/coverImage"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_foreground"
+        android:contentDescription="Book Cover Image"/>
+
+    <!-- Book Title -->
+    <EditText
+        android:id="@+id/etBookTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/coverImage"
+        android:layout_marginTop="16dp"
+        android:hint="Book Title"/>
+
+    <!-- Author Name -->
+    <EditText
+        android:id="@+id/etAuthorName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etBookTitle"
+        android:layout_marginTop="8dp"
+        android:hint="Author Name"/>
+
+    <!-- Review Text -->
+    <EditText
+        android:id="@+id/etReviewText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etAuthorName"
+        android:layout_marginTop="8dp"
+        android:hint="Review Text"
+        android:inputType="textMultiLine"/>
+
+</RelativeLayout>

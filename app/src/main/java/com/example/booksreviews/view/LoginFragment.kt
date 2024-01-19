@@ -1,4 +1,4 @@
-package com.example.booksreviews;
+package com.example.booksreviews.view;
 
 import android.os.Bundle
 import android.text.Editable
@@ -8,8 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentLoginBinding
+import com.example.booksreviews.model.User
+import com.example.booksreviews.viewmodel.UserViewModel
 
 class LoginFragment : Fragment() {
 
@@ -90,6 +94,7 @@ class LoginFragment : Fragment() {
         // כאן תוסיפי את הלוגיקה להתחברות או הרשמה, בהתאם לסטטוס הנוכחי (isLoginMode)
         if (isValidEmail(binding.etEmail.text.toString()) && isValidPassword(binding.etPassword.text.toString())) {
             // Perform login logic here
+            ViewModelProvider(requireActivity()).get(UserViewModel::class.java).user = User(1, "keren", "keren")
             findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
         } else {
             // Show an error message or handle the invalid input case
