@@ -21,5 +21,8 @@ class MainActivity : AppCompatActivity() {
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Inside your Application class or MainActivity's onCreate method
+        FirebaseApp.initializeApp(this)
     }
 }
