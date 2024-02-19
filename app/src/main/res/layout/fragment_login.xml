@@ -10,6 +10,13 @@
     android:gravity="center"
     android:background="@android:color/white">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <!-- App Logo or Header Image -->
 <!--    <ImageView-->
 <!--        android:id="@+id/logo"-->
@@ -98,4 +105,10 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         android:textStyle="italic" />
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/googleSignInButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
