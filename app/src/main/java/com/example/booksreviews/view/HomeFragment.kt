@@ -16,6 +16,7 @@ import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentHomeBinding
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment() {
 
@@ -49,7 +50,7 @@ class HomeFragment : Fragment() {
 
         // Set up RecyclerView and adapter
         adapter = ReviewsAdapter(
-            viewModelProvider[UserViewModel::class.java].user.id,
+            viewModelProvider[UserViewModel::class.java].user.uid,
             { review -> onDeleteReviewClicked(review) },
             { review -> onEditReviewClicked(review) },
             true)
@@ -80,6 +81,7 @@ class HomeFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_logout -> {
+                FirebaseAuth.getInstance().signOut()
                 navigateToLogin()
                 return true
             }

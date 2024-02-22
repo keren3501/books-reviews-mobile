@@ -1,8 +1,8 @@
 package com.example.booksreviews.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.booksreviews.model.User
+import com.google.firebase.auth.FirebaseUser
 
 class UserViewModel : ViewModel() {
-    lateinit var user: User
+    lateinit var user: FirebaseUser
 }
