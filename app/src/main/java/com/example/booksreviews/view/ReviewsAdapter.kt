@@ -12,7 +12,7 @@ import com.example.booksreviews.databinding.ItemReviewBinding
 import com.example.booksreviews.model.Review
 
 class ReviewsAdapter(
-    private val currUserId: Int,
+    private val currUserId: String,
     private val onDeleteClickListener: ((Int) -> Unit)?,
     private val onEditClickListener: ((Int) -> Unit)?,
     private val inFeed: Boolean
@@ -29,7 +29,7 @@ class ReviewsAdapter(
     }
 
     class ReviewViewHolder(private val binding: ItemReviewBinding,
-                           private val currUserId: Int,
+                           private val currUserId: String,
                            private val onDeleteClickListener: ((Int) -> Unit)?,
                            private val onEditClickListener: ((Int) -> Unit)?,
                            private val inFeed: Boolean

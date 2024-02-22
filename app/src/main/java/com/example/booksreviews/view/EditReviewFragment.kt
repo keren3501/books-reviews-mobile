@@ -95,7 +95,7 @@ class EditReviewFragment : Fragment() {
                     }
                     else {
                         newReview.id = reviewsViewModel.reviews.value!!.size
-                        newReview.userId = userViewModel.user.id
+                        newReview.userId = userViewModel.user.uid
 
                         // Create an intent to pass back the new review data
                         reviewsViewModel.addReview(newReview)

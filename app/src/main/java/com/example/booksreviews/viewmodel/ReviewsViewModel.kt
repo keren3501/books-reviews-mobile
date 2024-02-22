@@ -42,7 +42,7 @@ class ReviewsViewModel : ViewModel() {
         currEditedReviewIndex = -1
     }
 
-    fun getReviewsByUser(userId: Int) : List<Review> {
+    fun getReviewsByUser(userId: String) : List<Review> {
         return reviews.value!!.filter { it.userId == userId }
     }
 }

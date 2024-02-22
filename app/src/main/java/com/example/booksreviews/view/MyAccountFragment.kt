@@ -10,18 +10,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentMyAccountBinding
-import com.example.booksreviews.model.User
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseUser
 
 class MyAccountFragment : Fragment() {
 
     private lateinit var binding: FragmentMyAccountBinding
     private lateinit var userViewModel: UserViewModel
     private lateinit var reviewsViewModel: ReviewsViewModel
-    private lateinit var currUser: User
+    private lateinit var currUser: FirebaseUser
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,17 +67,17 @@ class MyAccountFragment : Fragment() {
 
     private fun loadUserData() {
         // Load user's profile image and username
-        binding.profileImage.setImageResource(R.drawable.ic_launcher_foreground)
-        binding.username.text = currUser.userName
+        binding.profileImage.setImageURI(currUser.photoUrl)
+        binding.username.text = currUser.displayName
     }
 
     private fun loadUserReviews() {
         // Load user's reviews into RecyclerView
-        val reviewsAdapter = ReviewsAdapter(userViewModel.user.id, null, null, false)
+        val reviewsAdapter = ReviewsAdapter(userViewModel.user.uid, null, null, false)
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = reviewsAdapter
 
         // Observe reviews data from ViewModel
-        reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.id))
+        reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.uid))
     }
 }
