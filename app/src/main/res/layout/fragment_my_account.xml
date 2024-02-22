@@ -13,10 +13,11 @@
         android:layout_height="100dp"
         android:background="@drawable/ic_launcher_foreground"
         android:layout_centerHorizontal="true"
-        android:contentDescription="Profile Image"/>
+        android:contentDescription="Profile Image"
+        android:clickable="false" />
 
     <!-- Username -->
-    <TextView
+    <EditText
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +25,9 @@
         android:textSize="18sp"
         android:layout_below="@id/profileImage"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:inputType="text"
+        android:enabled="false"/>
 
     <!-- Edit Button -->
     <Button
@@ -33,6 +36,17 @@
         android:layout_height="wrap_content"
         android:text="Edit"
         android:layout_below="@id/username"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Cancel Button -->
+    <Button
+        android:id="@+id/btnCancelProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:visibility="gone"
+        android:layout_below="@id/btnEditProfile"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"/>
 

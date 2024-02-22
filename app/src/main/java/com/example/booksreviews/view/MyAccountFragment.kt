@@ -1,31 +1,44 @@
 package com.example.booksreviews.view;
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.booksreviews.databinding.FragmentMyAccountBinding
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
+
+private const val REQUEST_CODE: Int = 100
 
 class MyAccountFragment : Fragment() {
 
     private lateinit var binding: FragmentMyAccountBinding
+    private lateinit var currImageUri: Uri
+    private lateinit var currUsername: Editable
     private lateinit var userViewModel: UserViewModel
     private lateinit var reviewsViewModel: ReviewsViewModel
     private lateinit var currUser: FirebaseUser
+    private var isEditing: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMyAccountBinding.inflate(inflater, container, false)
 
         setHasOptionsMenu(true)
@@ -55,20 +68,109 @@ class MyAccountFragment : Fragment() {
 
         currUser = userViewModel.user
 
+        currImageUri = currUser.photoUrl!!
+        currUsername = Editable.Factory.getInstance().newEditable(currUser.displayName)
+
+        binding.profileImage.isClickable = false
+
         // Load user data and reviews
         loadUserData()
         loadUserReviews()
 
         binding.btnEditProfile.setOnClickListener {
-            // Toggle between TextView and EditText for editing profile and name
-            // Handle the logic accordingly
+            toggleEditMode()
+        }
+
+        binding.profileImage.setOnClickListener {
+            openGalleryForImage()
+        }
+
+        binding.btnCancelProfile.setOnClickListener {
+            cancelChanges()
         }
     }
 
-    private fun loadUserData() {
-        // Load user's profile image and username
+    private fun cancelChanges() {
         binding.profileImage.setImageURI(currUser.photoUrl)
-        binding.username.text = currUser.displayName
+        binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
+        finishEditing()
+    }
+
+    private fun openGalleryForImage() {
+        if (isEditing) {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(intent, REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
+            data?.data?.let { uri ->
+                // Save the URI of the selected image
+                binding.profileImage.setImageURI(uri)
+
+                // Now you can save 'uri' for later use
+                currImageUri = uri
+            }
+        }
+    }
+
+    private fun finishEditing() {
+        isEditing = false
+        binding.username.isEnabled = false
+        binding.profileImage.isClickable = false
+        binding.btnEditProfile.text = "Edit"
+        binding.btnCancelProfile.visibility = View.GONE
+    }
+
+    private fun toggleEditMode() {
+        if (isEditing) {
+            // Save changes
+            saveChanges()
+        } else {
+            // Enable editing mode
+            enableEditMode()
+        }
+    }
+
+    private fun enableEditMode() {
+        isEditing = true
+        binding.username.isEnabled = true
+        binding.profileImage.isClickable = true
+        binding.btnEditProfile.text = "Save"
+        binding.btnCancelProfile.visibility = View.VISIBLE
+    }
+
+    private fun saveChanges() {
+        // Set username as display name
+        val profileUpdates = UserProfileChangeRequest.Builder()
+            .setDisplayName(binding.username.text.toString())
+            .setPhotoUri(currImageUri) // Set default avatar image
+            .build()
+
+        userViewModel.user.updateProfile(profileUpdates)
+            .addOnCompleteListener { profileTask ->
+                if (profileTask.isSuccessful) {
+                    // Disable editing mode
+                    finishEditing()
+                    // Save changes to Firebase or perform any other necessary action
+                } else {
+                    // Failed to update profile
+                    // Handle the error
+                    val errorMessage = profileTask.exception?.message ?: "Unknown error"
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                    binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
+                    binding.profileImage.setImageURI(userViewModel.user.photoUrl)
+                }
+            }
+    }
+
+    private fun loadUserData() {
+        Glide.with(this).load(currUser.photoUrl).into(binding.profileImage)
+        // Load user's profile image and username
+//        binding.profileImage.setImageURI(currUser.photoUrl)
+        binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
     }
 
     private fun loadUserReviews() {

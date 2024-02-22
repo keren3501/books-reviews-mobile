@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -65,6 +66,7 @@ class LoginFragment : Fragment() {
     ): View? {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
 
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
 
         return binding.root
@@ -158,11 +160,16 @@ class LoginFragment : Fragment() {
                         } else {
                             // Failed to update profile
                             // Handle the error
-                            val errorMessage = task.exception?.message ?: "Unknown error"
+                            val errorMessage = profileTask.exception?.message ?: "Unknown error"
                             binding.errorTextView.text = errorMessage
                         }
                     }
             }
+        }
+        else {
+            // Handle the error
+            val errorMessage = task.exception?.message ?: "Unknown error"
+            binding.errorTextView.text = errorMessage
         }
     }
 
