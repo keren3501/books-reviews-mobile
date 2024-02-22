@@ -6,6 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.booksreviews.R
+import com.google.firebase.FirebaseApp
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,5 +1,6 @@
 package com.example.booksreviews.view;
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,7 +15,14 @@ import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentLoginBinding
 import com.example.booksreviews.model.User
 import com.example.booksreviews.viewmodel.UserViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
+private const val RC_GOOGLE_SIGN_IN = 9001 // You can use any integer value
 class LoginFragment : Fragment() {
 
     // region Members
@@ -84,13 +92,18 @@ class LoginFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RC_GOOGLE_SIGN_IN) {
+            binding.progressBar.visibility = View.GONE
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!)
-            } catch (e: ApiException) {
-                // Google Sign-In failed, handle error
-            }
+                .addOnCompleteListener(requireActivity()) {
+                    task ->
+                    try {
+                        val account = task.getResult(ApiException::class.java)!!
+                        firebaseAuthWithGoogle(account.idToken!!)
+                    } catch (e: ApiException) {
+                        // Google Sign-In failed, handle error
+                        e.printStackTrace()
+                    }
+                }
         }
     }
 
@@ -119,13 +132,13 @@ class LoginFragment : Fragment() {
         val password = binding.etPassword.text.toString()
 
         if (isValidEmail(email) && isValidPassword(password)) {
-            val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+            val progressBar = binding.progressBar
             progressBar.visibility = View.VISIBLE
 
             if (isLoginMode) {
                 // Sign in with email and password
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
+                    .addOnCompleteListener(requireActivity()) { task ->
                         progressBar.visibility = View.GONE
                         if (task.isSuccessful) {
                             // Sign in success, user is signed in
@@ -140,7 +153,7 @@ class LoginFragment : Fragment() {
             } else {
                 // Register with email and password
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
+                    .addOnCompleteListener(requireActivity()) { task ->
                         progressBar.visibility = View.GONE
                         if (task.isSuccessful) {
                             // Registration success, user is signed in automatically
@@ -168,8 +181,6 @@ class LoginFragment : Fragment() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
-                binding.progressBar.visibility = View.GONE
-
                 if (task.isSuccessful) {
                     // Sign in success, user is signed in
                     val user = FirebaseAuth.getInstance().currentUser
