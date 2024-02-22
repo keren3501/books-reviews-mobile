@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -37,6 +38,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         setHasOptionsMenu(true)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         return binding.root
     }
@@ -130,7 +132,8 @@ class HomeFragment : Fragment() {
     // region Navigation
 
     private fun navigateToLogin() {
-        findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
+        val navController = findNavController()
+        navController.popBackStack(R.id.loginFragment, false) // Pop all back stack entries up to the login screen
     }
 
     private fun navigateToMyAccount() {
