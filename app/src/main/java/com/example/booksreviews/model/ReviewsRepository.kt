@@ -44,10 +44,6 @@ object ReviewsRepository {
         }
     }
 
-    fun getBookReviewsByUserId(userId: String): Task<QuerySnapshot> {
-        return bookReviewsCollection.whereEqualTo("userId", userId).get()
-    }
-
     fun editBookReview(reviewId: String, updatedReview: Review) {
         val updates = hashMapOf<String, Any>(
             "bookCoverUrl" to updatedReview.bookCoverUrl,

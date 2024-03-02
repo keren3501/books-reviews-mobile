@@ -78,9 +78,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        ReviewsRepository.getAllBookReviews().addOnSuccessListener {
-            reviewsViewModel.reviewsLiveData.value = it
-        }
+        reviewsViewModel.getAllBookReviews()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -100,9 +98,7 @@ class HomeFragment : Fragment() {
                 return true
             }
             R.id.refresh_reviews -> {
-                ReviewsRepository.getAllBookReviews().addOnSuccessListener {
-                    reviewsViewModel.reviewsLiveData.value = it
-                }
+                reviewsViewModel.getAllBookReviews()
                 return true
             }
             // Add more menu items as needed

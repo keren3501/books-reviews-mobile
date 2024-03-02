@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentMyAccountBinding
 import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
@@ -49,11 +52,20 @@ class MyAccountFragment : Fragment() {
         return binding.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.my_account_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
                 // Navigate to the HomeFragment when the back button is pressed
                 findNavController().popBackStack()
+                true
+            }
+            R.id.action_refresh -> {
+                reviewsViewModel.getAllBookReviews()
                 true
             }
             // Add more menu items as needed
@@ -174,8 +186,8 @@ class MyAccountFragment : Fragment() {
 
     private fun loadUserData() {
         Glide.with(this).load(currUser.photoUrl).into(binding.profileImage)
+
         // Load user's profile image and username
-//        binding.profileImage.setImageURI(currUser.photoUrl)
         binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
     }
 
@@ -185,7 +197,11 @@ class MyAccountFragment : Fragment() {
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = reviewsAdapter
 
-        // Observe reviews data from ViewModel
+        // get only my reviews data from ViewModel
         reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.uid))
+
+        reviewsViewModel.reviewsLiveData.observe(viewLifecycleOwner) {
+            reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.uid))
+        }
     }
 }

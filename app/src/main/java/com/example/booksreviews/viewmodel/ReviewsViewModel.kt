@@ -18,9 +18,14 @@ class ReviewsViewModel : ViewModel() {
         if (index in 0 until currentReviews.size) {
             ReviewsRepository.deleteBookReview(currentReviews[index].id)
 
-            ReviewsRepository.getAllBookReviews().addOnSuccessListener {
-                reviewsLiveData.value = it
-            }
+            getAllBookReviews()
+        }
+    }
+
+    fun getAllBookReviews() {
+        ReviewsRepository.getAllBookReviews().addOnSuccessListener {
+            reviewsLiveData.value = it
+
         }
     }
 
