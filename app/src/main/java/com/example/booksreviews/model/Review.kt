@@ -1,25 +1,27 @@
 package com.example.booksreviews.model
 
-import android.net.Uri
+import java.util.UUID
 
 data class Review(
-    var id: Int,
+    var id: String,
     var userId: String,
-    var bookCoverUri: Uri,
+    var bookCoverUrl: String,
     var bookTitle: String,
     var authorName: String,
-    var reviewText: String
+    var reviewText: String,
+    var timestamp: Long
 ) {
     // Empty constructor (default constructor)
-    constructor() : this(-1, "", Uri.EMPTY, "", "", "")
+    constructor() : this(UUID.randomUUID().toString(), "", "", "", "", "", 0)
 
     // Copy constructor
     constructor(review: Review) : this(
         review.id,
         review.userId,
-        review.bookCoverUri,
+        review.bookCoverUrl,
         review.bookTitle,
         review.authorName,
-        review.reviewText
+        review.reviewText,
+        review.timestamp
     )
 }

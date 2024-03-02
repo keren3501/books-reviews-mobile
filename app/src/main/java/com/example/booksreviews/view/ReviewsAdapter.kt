@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.ItemReviewBinding
 import com.example.booksreviews.model.Review
+import com.example.booksreviews.model.UserRepository
 
 class ReviewsAdapter(
     private val currUserId: String,
@@ -42,13 +43,24 @@ class ReviewsAdapter(
                 binding.top.visibility = View.GONE
             }
 
-            binding.username.text = review.userId.toString()
+            // Launch a coroutine to call the suspend function
+            val username = UserRepository.getUsernameFromUserId(review.userId)
+            if (username != null) {
+                binding.username.text = username
+                // Use the username as needed
+                println("Username: $username")
+            } else {
+                binding.username.text = review.userId
+                // Handle the case where no username was found
+                println("Username not found")
+            }
+
             binding.bookTitle.text = review.bookTitle
             binding.authorName.text = review.authorName
             binding.reviewText.text = review.reviewText
 
             Glide.with(binding.root.context)
-                .load(review.bookCoverUri)
+                .load(review.bookCoverUrl)
                 .error(R.drawable.ic_launcher_foreground)
                 .override(100, 150)
                 .into(binding.coverImage)
@@ -68,10 +80,6 @@ class ReviewsAdapter(
                     onEditClickListener.invoke(adapterPosition)
                 }
             }
-
-            // Set up logic for loading and displaying images (using Glide, Picasso, etc.)
-            // For simplicity, we assume imagePath is a URL or local path
-            // binding.ivReviewImage.load(review.imagePath)
         }
     }
 

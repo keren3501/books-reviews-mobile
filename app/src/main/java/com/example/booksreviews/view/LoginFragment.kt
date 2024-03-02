@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentLoginBinding
+import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -156,6 +157,7 @@ class LoginFragment : Fragment() {
                     .addOnCompleteListener { profileTask ->
                         if (profileTask.isSuccessful) {
                             // Registration and profile update successful
+                            UserRepository.addUserToFirestore(user)
                             findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
                         } else {
                             // Failed to update profile

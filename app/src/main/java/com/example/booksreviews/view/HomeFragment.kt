@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentHomeBinding
+import com.example.booksreviews.model.ReviewsRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +35,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         setHasOptionsMenu(true)
@@ -61,7 +62,7 @@ class HomeFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         // Observe changes in the reviews list
-        reviewsViewModel.reviews.observe(viewLifecycleOwner) { reviews ->
+        reviewsViewModel.reviewsLiveData.observe(viewLifecycleOwner) { reviews ->
             // Update the adapter with the new list of reviews
             adapter.submitList(reviews)
             adapter.notifyDataSetChanged()
@@ -71,8 +72,15 @@ class HomeFragment : Fragment() {
 
         binding.fabAddReview.setOnClickListener { navigateToEditReviewFragment() }
 
-        adapter.submitList(reviewsViewModel.reviews.value)
-        showNoReviewsMessage(reviewsViewModel.reviews.value!!.isEmpty())
+        showNoReviewsMessage(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        ReviewsRepository.getAllBookReviews().addOnSuccessListener {
+            reviewsViewModel.reviewsLiveData.value = it
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -91,6 +99,12 @@ class HomeFragment : Fragment() {
                 navigateToMyAccount()
                 return true
             }
+            R.id.refresh_reviews -> {
+                ReviewsRepository.getAllBookReviews().addOnSuccessListener {
+                    reviewsViewModel.reviewsLiveData.value = it
+                }
+                return true
+            }
             // Add more menu items as needed
             else -> return super.onOptionsItemSelected(item)
         }
@@ -101,19 +115,19 @@ class HomeFragment : Fragment() {
     // region Private Methods
 
     private fun onEditReviewClicked(reviewIndex: Int) {
-        reviewsViewModel.currEditedReviewIndex = reviewIndex
+        reviewsViewModel.startEditing(reviewIndex)
 
         navigateToEditReviewFragment()
     }
 
     private fun onDeleteReviewClicked(reviewIndex: Int) {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Confirm Delete")
-            .setMessage("Are you sure you want to delete this review?")
-            .setPositiveButton("Yes") { _, _ ->
+        builder.setTitle(getString(R.string.confirm_delete_title))
+            .setMessage(getString(R.string.confirm_delete_msg))
+            .setPositiveButton(getString(R.string.yes_dialog_option)) { _, _ ->
                 reviewsViewModel.deleteReviewAtIndex(reviewIndex)
             }
-            .setNegativeButton("No") { _, _ ->
+            .setNegativeButton(getString(R.string.no_dialog_option)) { _, _ ->
                 // Do nothing, user canceled the delete operation
             }
             .show()

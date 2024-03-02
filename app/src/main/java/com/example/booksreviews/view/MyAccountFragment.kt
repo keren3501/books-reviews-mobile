@@ -18,10 +18,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.booksreviews.databinding.FragmentMyAccountBinding
+import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.storage.FirebaseStorage
 
 private const val REQUEST_CODE: Int = 100
 
@@ -112,6 +114,9 @@ class MyAccountFragment : Fragment() {
 
                 // Now you can save 'uri' for later use
                 currImageUri = uri
+
+                val storageRef = FirebaseStorage.getInstance().reference.child("covers/${currImageUri}")
+                storageRef.putFile(currImageUri)
             }
         }
     }
@@ -153,6 +158,7 @@ class MyAccountFragment : Fragment() {
             .addOnCompleteListener { profileTask ->
                 if (profileTask.isSuccessful) {
                     // Disable editing mode
+                    UserRepository.updateUserInFirestore(userViewModel.user)
                     finishEditing()
                     // Save changes to Firebase or perform any other necessary action
                 } else {
