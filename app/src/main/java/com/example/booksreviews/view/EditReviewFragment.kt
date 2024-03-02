@@ -2,8 +2,10 @@ package com.example.booksreviews.view
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -18,21 +20,26 @@ import com.bumptech.glide.Glide
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentEditReviewBinding
 import com.example.booksreviews.model.Review
+import com.example.booksreviews.model.ReviewsRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
+
+private const val PICK_IMAGE_REQUEST: Int = 4
 
 class EditReviewFragment : Fragment() {
 
-    private val PICK_IMAGE_REQUEST: Int = 4
     private lateinit var binding: FragmentEditReviewBinding
     private lateinit var reviewsViewModel: ReviewsViewModel
     private lateinit var userViewModel: UserViewModel
     private lateinit var newReview: Review
+    private var coverUri: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentEditReviewBinding.inflate(inflater, container, false)
 
         setHasOptionsMenu(true)
@@ -54,13 +61,13 @@ class EditReviewFragment : Fragment() {
 
         // if its edit mode
         if (reviewsViewModel.currEditedReviewIndex != -1) {
-            newReview = Review(reviewsViewModel.reviews.value?.get(reviewsViewModel.currEditedReviewIndex)!!)
+            newReview = Review(reviewsViewModel.reviewsLiveData.value?.get(reviewsViewModel.currEditedReviewIndex)!!)
 
             binding.etReviewText.setText(newReview.reviewText)
             binding.etBookTitle.setText(newReview.bookTitle)
             binding.etAuthorName.setText(newReview.authorName)
             Glide.with(this)
-                .load(newReview.bookCoverUri)
+                .load(newReview.bookCoverUrl)
                 .override(100, 150)
                 .error(R.drawable.ic_launcher_foreground)
                 .into(binding.coverImage)
@@ -90,17 +97,11 @@ class EditReviewFragment : Fragment() {
                     newReview.authorName = authorName
 
                     if (reviewsViewModel.currEditedReviewIndex !=-1) {
-                        reviewsViewModel.updateReviewAtIndex(reviewsViewModel.currEditedReviewIndex, newReview)
-                        findNavController().popBackStack()
+                        editReview()
                     }
                     else {
-                        newReview.id = reviewsViewModel.reviews.value!!.size
                         newReview.userId = userViewModel.user.uid
-
-                        // Create an intent to pass back the new review data
-                        reviewsViewModel.addReview(newReview)
-
-                        findNavController().popBackStack()
+                        uploadReview()
                     }
                 } else {
                     // Show an error message or toast indicating that both text and photo are required
@@ -110,6 +111,33 @@ class EditReviewFragment : Fragment() {
             }
             // Add more menu items as needed
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun editReview() {
+        // Upload cover image to Firebase Storage
+        if (coverUri != null) {
+        val storageRef = FirebaseStorage.getInstance().reference.child("covers/${coverUri!!}")
+        val uploadTask = storageRef.putFile(coverUri!!)
+
+        uploadTask.addOnSuccessListener { taskSnapshot ->
+            // Image uploaded successfully, get the download URL
+            val downloadUrl = taskSnapshot.storage.downloadUrl.toString()
+            newReview.bookCoverUrl = downloadUrl
+
+            // Save book review details along with the cover image URL in Firebase Realtime Database
+            ReviewsRepository.editBookReview(newReview.id, newReview)
+            reviewsViewModel.finishEditing()
+            findNavController().popBackStack()
+        }.addOnFailureListener { exception ->
+            // Handle any errors during upload
+            Log.e("Edit Review", "Error uploading cover image: $exception")
+        }
+        }
+        else {
+            ReviewsRepository.editBookReview(newReview.id, newReview)
+            reviewsViewModel.finishEditing()
+            findNavController().popBackStack()
         }
     }
 
@@ -126,7 +154,7 @@ class EditReviewFragment : Fragment() {
             // Handle the selected image as needed
             // For example, update the profile image in your ViewModel
             if (selectedImage != null) {
-                newReview.bookCoverUri = selectedImage
+                coverUri = selectedImage
 
                 Glide.with(this)
                     .load(selectedImage)
@@ -134,6 +162,35 @@ class EditReviewFragment : Fragment() {
                     .override(100, 150)
                     .into(binding.coverImage)
             }
+        }
+    }
+
+    private fun uploadReview() {
+        newReview.timestamp = System.currentTimeMillis()
+
+        if (coverUri != null) {
+            val imageId = UUID.randomUUID()
+            // Upload cover image to Firebase Storage
+            val storageRef =
+                FirebaseStorage.getInstance().reference.child("covers/${imageId}")
+            val uploadTask = storageRef.putFile(coverUri!!)
+
+            uploadTask.addOnSuccessListener { taskSnapshot ->
+                // Image uploaded successfully, get the download URL
+                val downloadUrl = taskSnapshot.task.result.uploadSessionUri.toString()
+                newReview.bookCoverUrl = downloadUrl
+
+                // Save book review details along with the cover image URL in Firebase Realtime Database
+                ReviewsRepository.addBookReview(newReview)
+                findNavController().popBackStack()
+            }.addOnFailureListener { exception ->
+                // Handle any errors during upload
+                Log.e("Edit Review", "Error uploading cover image: $exception")
+            }
+        }
+        else {
+            ReviewsRepository.addBookReview(newReview)
+            findNavController().popBackStack()
         }
     }
 }
