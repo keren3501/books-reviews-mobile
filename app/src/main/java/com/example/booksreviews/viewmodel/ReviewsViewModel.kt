@@ -9,6 +9,7 @@ class ReviewsViewModel : ViewModel() {
 
     // Initialize _reviews with an empty ArrayList
     val reviewsLiveData = MutableLiveData<ArrayList<Review>>().apply { value = ArrayList() }
+    val isLoading = MutableLiveData(false)
 
     var currEditedReviewIndex: Int = -1
 
@@ -23,9 +24,11 @@ class ReviewsViewModel : ViewModel() {
     }
 
     fun getAllBookReviews() {
+        isLoading.value = true
+
         ReviewsRepository.getAllBookReviews().addOnSuccessListener {
             reviewsLiveData.value = it
-
+            isLoading.value = false
         }
     }
 
