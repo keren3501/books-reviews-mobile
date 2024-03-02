@@ -73,6 +73,10 @@ class HomeFragment : Fragment() {
         binding.fabAddReview.setOnClickListener { navigateToEditReviewFragment() }
 
         showNoReviewsMessage(true)
+
+        reviewsViewModel.isLoading.observe(viewLifecycleOwner) {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onResume() {

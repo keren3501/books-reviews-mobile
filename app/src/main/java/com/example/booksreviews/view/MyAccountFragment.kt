@@ -102,6 +102,10 @@ class MyAccountFragment : Fragment() {
         binding.btnCancelProfile.setOnClickListener {
             cancelChanges()
         }
+
+        reviewsViewModel.isLoading.observe(viewLifecycleOwner) {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
     }
 
     private fun cancelChanges() {
