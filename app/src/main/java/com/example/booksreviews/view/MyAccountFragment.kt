@@ -109,7 +109,10 @@ class MyAccountFragment : Fragment() {
     }
 
     private fun cancelChanges() {
-        binding.profileImage.setImageURI(currUser.photoUrl)
+        Glide.with(this)
+            .load(currUser.photoUrl)
+            .error(R.drawable.reader_icon)
+            .into(binding.profileImage)
         binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
         finishEditing()
     }
@@ -126,7 +129,10 @@ class MyAccountFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
             data?.data?.let { uri ->
                 // Save the URI of the selected image
-                binding.profileImage.setImageURI(uri)
+                Glide.with(this)
+                    .load(uri)
+                    .error(R.drawable.reader_icon)
+                    .into(binding.profileImage)
 
                 // Now you can save 'uri' for later use
                 currImageUri = uri
@@ -183,13 +189,19 @@ class MyAccountFragment : Fragment() {
                     val errorMessage = profileTask.exception?.message ?: "Unknown error"
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
                     binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
-                    binding.profileImage.setImageURI(userViewModel.user.photoUrl)
+                    Glide.with(this)
+                        .load(userViewModel.user.photoUrl)
+                        .error(R.drawable.reader_icon)
+                        .into(binding.profileImage)
                 }
             }
     }
 
     private fun loadUserData() {
-        Glide.with(this).load(currUser.photoUrl).into(binding.profileImage)
+        Glide.with(this)
+            .load(currUser.photoUrl)
+            .error(R.drawable.reader_icon)
+            .into(binding.profileImage)
 
         // Load user's profile image and username
         binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)

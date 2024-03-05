@@ -61,8 +61,8 @@ class ReviewsAdapter(
 
             Glide.with(binding.root.context)
                 .load(review.bookCoverUrl)
-                .error(R.drawable.ic_launcher_foreground)
-                .override(100, 150)
+                .error(R.drawable.no_cover)
+                .override(100, 158)
                 .into(binding.coverImage)
 
             if (onDeleteClickListener != null && currUserId == review.userId) {

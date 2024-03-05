@@ -8,9 +8,9 @@
     <ImageView
         android:id="@+id/coverImage"
         android:layout_width="100dp"
-        android:layout_height="150dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_launcher_foreground"
+        android:layout_centerHorizontal="true"
+        android:layout_height="158dp"
+        android:src="@drawable/no_cover"
         android:contentDescription="Book Cover Image"/>
 
     <!-- Book Title -->
