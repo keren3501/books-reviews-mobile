@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:text="Welcome back!"
         android:textStyle="bold"
-        android:textSize="40sp"
+        android:textSize="35sp"
         android:textColor="#000000"
         />
 
@@ -92,6 +92,17 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/holo_red_dark" /> <!-- Initially hidden -->
 
+    <!-- Sign Up Link -->
+    <TextView
+        android:id="@+id/btnToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an account? Sign Up"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="14sp"
+        android:textStyle="italic" />
+
     <!-- Divider Line -->
     <View
         android:id="@+id/divider"
@@ -100,21 +111,10 @@
         android:layout_marginTop="16dp"
         android:background="@android:color/darker_gray" />
 
-    <!-- Sign Up Link -->
-    <TextView
-        android:id="@+id/btnToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Don't have an account? Sign Up"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:textColor="@android:color/black"
-        android:textSize="14sp"
-        android:textStyle="italic" />
-
     <com.google.android.gms.common.SignInButton
         android:id="@+id/googleSignInButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>
