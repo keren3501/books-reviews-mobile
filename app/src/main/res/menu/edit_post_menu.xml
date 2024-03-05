@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/action_save"
-        android:icon="@drawable/ic_back"
+        android:icon="@drawable/baseline_upload_24"
         android:title="Save"
         app:showAsAction="always" />
 

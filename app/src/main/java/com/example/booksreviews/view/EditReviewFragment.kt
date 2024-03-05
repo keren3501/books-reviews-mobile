@@ -12,6 +12,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -35,6 +36,7 @@ class EditReviewFragment : Fragment() {
     private lateinit var userViewModel: UserViewModel
     private lateinit var newReview: Review
     private var coverUri: Uri? = null
+    private var isCurrSaving = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -87,26 +89,34 @@ class EditReviewFragment : Fragment() {
                 true
             }
             R.id.action_save -> {
-                val reviewText = binding.etReviewText.text.toString()
-                val bookTitle = binding.etBookTitle.text.toString()
-                val authorName = binding.etAuthorName.text.toString()
-                // Check if both text and photo are provided
-                if (reviewText.isNotEmpty() && bookTitle.isNotEmpty() && authorName.isNotEmpty()) {
-                    newReview.reviewText = reviewText
-                    newReview.bookTitle = bookTitle
-                    newReview.authorName = authorName
+                if (!isCurrSaving) {
+                    val reviewText = binding.etReviewText.text.toString()
+                    val bookTitle = binding.etBookTitle.text.toString()
+                    val authorName = binding.etAuthorName.text.toString()
+                    // Check if both text and photo are provided
+                    if (reviewText.isNotEmpty() && bookTitle.isNotEmpty() && authorName.isNotEmpty() &&
+                        (newReview.bookCoverUrl.isNotEmpty() || coverUri != null)
+                    ) {
+                        newReview.reviewText = reviewText
+                        newReview.bookTitle = bookTitle
+                        newReview.authorName = authorName
 
-                    if (reviewsViewModel.currEditedReviewIndex !=-1) {
-                        editReview()
+                        if (reviewsViewModel.currEditedReviewIndex != -1) {
+                            Toast.makeText(context, "Editing...", Toast.LENGTH_SHORT).show()
+                            isCurrSaving = true
+                            editReview()
+                        } else {
+                            newReview.userId = userViewModel.user.uid
+                            Toast.makeText(context, "Uploading...", Toast.LENGTH_SHORT).show()
+                            isCurrSaving = true
+                            uploadReview()
+                        }
+                    } else {
+                        // Show an error message or toast indicating that both text and photo are required
+                        Toast.makeText(context, "All fields are required!", Toast.LENGTH_SHORT)
+                            .show()
                     }
-                    else {
-                        newReview.userId = userViewModel.user.uid
-                        uploadReview()
-                    }
-                } else {
-                    // Show an error message or toast indicating that both text and photo are required
                 }
-
                 true
             }
             // Add more menu items as needed
@@ -128,15 +138,19 @@ class EditReviewFragment : Fragment() {
             // Save book review details along with the cover image URL in Firebase Realtime Database
             ReviewsRepository.editBookReview(newReview.id, newReview)
             reviewsViewModel.finishEditing()
+            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }.addOnFailureListener { exception ->
             // Handle any errors during upload
+            isCurrSaving = false
+            Toast.makeText(context, "Error uploading cover image!", Toast.LENGTH_SHORT).show()
             Log.e("Edit Review", "Error uploading cover image: $exception")
         }
         }
         else {
             ReviewsRepository.editBookReview(newReview.id, newReview)
             reviewsViewModel.finishEditing()
+            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }
@@ -182,14 +196,18 @@ class EditReviewFragment : Fragment() {
 
                 // Save book review details along with the cover image URL in Firebase Realtime Database
                 ReviewsRepository.addBookReview(newReview)
+                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()
             }.addOnFailureListener { exception ->
                 // Handle any errors during upload
+                isCurrSaving = false
+                Toast.makeText(context, "Error uploading cover image!", Toast.LENGTH_SHORT).show()
                 Log.e("Edit Review", "Error uploading cover image: $exception")
             }
         }
         else {
             ReviewsRepository.addBookReview(newReview)
+            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }
