@@ -91,9 +91,9 @@
         <ImageView
             android:id="@+id/coverImage"
             android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:scaleType="centerCrop"/>
+            android:layout_height="158dp"
+            android:padding="1dp"
+            android:src="@drawable/no_cover" />
 
     </LinearLayout>
 </LinearLayout>

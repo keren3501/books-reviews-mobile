@@ -70,8 +70,8 @@ class EditReviewFragment : Fragment() {
             binding.etAuthorName.setText(newReview.authorName)
             Glide.with(this)
                 .load(newReview.bookCoverUrl)
-                .override(100, 150)
-                .error(R.drawable.ic_launcher_foreground)
+                .override(100, 158)
+                .error(R.drawable.no_cover)
                 .into(binding.coverImage)
         }
     }
@@ -172,8 +172,8 @@ class EditReviewFragment : Fragment() {
 
                 Glide.with(this)
                     .load(selectedImage)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .override(100, 150)
+                    .error(R.drawable.no_cover)
+                    .override(100, 158)
                     .into(binding.coverImage)
             }
         }
