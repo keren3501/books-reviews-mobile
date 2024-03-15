@@ -8,11 +8,12 @@ data class Review(
     var bookCoverUrl: String,
     var bookTitle: String,
     var authorName: String,
+    var description: String,
     var reviewText: String,
     var timestamp: Long
 ) {
     // Empty constructor (default constructor)
-    constructor() : this(UUID.randomUUID().toString(), "", "", "", "", "", 0)
+    constructor() : this(UUID.randomUUID().toString(), "", "", "", "", "", "", 0)
 
     // Copy constructor
     constructor(review: Review) : this(
@@ -21,7 +22,12 @@ data class Review(
         review.bookCoverUrl,
         review.bookTitle,
         review.authorName,
+        review.description,
         review.reviewText,
         review.timestamp
     )
+
+    fun getIsBookChanged(title: String, author: String) : Boolean {
+        return (title != bookTitle) || (author != authorName)
+    }
 }

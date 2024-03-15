@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <!-- Add your spinner here -->
+    <ProgressBar
+        android:id="@+id/spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- Book Title -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputBookTitle"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etBookTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Book Title" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Author Name -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputAuthorName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textInputBookTitle"
+        android:layout_marginTop="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAuthorName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Author Name" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Review Text -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputReviewText"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textInputAuthorName"
+        android:layout_marginTop="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etReviewText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Review Text"
+            android:inputType="textMultiLine" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</RelativeLayout>

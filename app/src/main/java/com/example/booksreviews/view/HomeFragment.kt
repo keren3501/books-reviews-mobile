@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentHomeBinding
-import com.example.booksreviews.model.ReviewsRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +25,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var reviewsViewModel: ReviewsViewModel
+    private lateinit var userViewModel: UserViewModel
     private lateinit var adapter: ReviewsAdapter
 
     // endregion
@@ -50,6 +50,7 @@ class HomeFragment : Fragment() {
         // Initialize ViewModel
         val viewModelProvider = ViewModelProvider(requireActivity())
         reviewsViewModel = viewModelProvider[ReviewsViewModel::class.java]
+        userViewModel = viewModelProvider[UserViewModel::class.java]
 
         // Set up RecyclerView and adapter
         adapter = ReviewsAdapter(
@@ -70,7 +71,7 @@ class HomeFragment : Fragment() {
             showNoReviewsMessage(reviews.isEmpty())
         }
 
-        binding.fabAddReview.setOnClickListener { navigateToEditReviewFragment() }
+        binding.fabAddReview.setOnClickListener { navigateToEditReviewDialog() }
 
         showNoReviewsMessage(true)
 
@@ -117,7 +118,7 @@ class HomeFragment : Fragment() {
     private fun onEditReviewClicked(reviewIndex: Int) {
         reviewsViewModel.startEditing(reviewIndex)
 
-        navigateToEditReviewFragment()
+        navigateToEditReviewDialog()
     }
 
     private fun onDeleteReviewClicked(reviewIndex: Int) {
@@ -154,8 +155,9 @@ class HomeFragment : Fragment() {
         findNavController().navigate(R.id.action_homeFragment_to_myAccountFragment)
     }
 
-    private fun navigateToEditReviewFragment() {
-        findNavController().navigate(R.id.action_homeFragment_to_editReviewFragment)
+    private fun navigateToEditReviewDialog() {
+        val dialog = EditReviewDialog(requireContext(), (if (reviewsViewModel.isEditing()) "Edit" else "Post") + " a Review", reviewsViewModel, userViewModel)
+        dialog.show()
     }
 
     // endregion
