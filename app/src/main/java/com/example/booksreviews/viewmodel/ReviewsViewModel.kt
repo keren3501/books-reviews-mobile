@@ -97,22 +97,4 @@ class ReviewsViewModel : ViewModel() {
         return completableFuture
     }
 
-//    fun saveReview(newReview: Review) {
-//        isCurrSaving.value = true
-//
-//        if (isEditing()) {
-//            if (currEditedReview!!.getIsBookChanged(newReview.bookTitle, newReview.authorName)) {
-//                //fetch book details from api
-//                editReview(newReview)
-//            }
-//            else {
-//                editReview(newReview)
-//            }
-//        }
-//        else {
-//            // fetch book details from api
-//            postReview(newReview)
-//        }
-//    }
-
 }

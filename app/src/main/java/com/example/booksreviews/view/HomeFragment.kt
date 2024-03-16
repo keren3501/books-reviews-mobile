@@ -67,6 +67,7 @@ class HomeFragment : Fragment() {
             // Update the adapter with the new list of reviews
             adapter.submitList(reviews)
             adapter.notifyDataSetChanged()
+            binding.recyclerView.scrollToPosition(0)
 
             showNoReviewsMessage(reviews.isEmpty())
         }
