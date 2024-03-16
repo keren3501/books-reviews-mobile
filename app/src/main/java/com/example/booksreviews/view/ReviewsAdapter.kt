@@ -1,5 +1,6 @@
 package com.example.booksreviews.view
 
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,7 +61,7 @@ class ReviewsAdapter(
             binding.reviewText.text = review.reviewText
 
             Glide.with(binding.root.context)
-                .load(review.bookCoverUrl)
+                .load(Environment.getExternalStorageDirectory().absolutePath + "/${review.bookTitle}_${review.authorName}.png")
                 .error(R.drawable.no_cover)
                 .override(100, 158)
                 .into(binding.coverImage)
