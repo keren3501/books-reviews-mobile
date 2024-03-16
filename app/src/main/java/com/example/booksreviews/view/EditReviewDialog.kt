@@ -76,6 +76,7 @@ class EditReviewDialog(context: Context,
                                 // Handle success
                                 reviewsViewModel.finishEditing()
                                 alertDialog.dismiss()
+                                reviewsViewModel.getAllBookReviews()
                             } else {
                                 // Handle failure
                                 Toast.makeText(
@@ -95,6 +96,7 @@ class EditReviewDialog(context: Context,
                                 newReview.id = reviewId
                                 reviewsViewModel.finishEditing()
                                 alertDialog.dismiss()
+                                reviewsViewModel.getAllBookReviews()
                             } else {
                                 // Handle failure
                                 Toast.makeText(
