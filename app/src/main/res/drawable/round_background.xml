@@ -1,4 +1,16 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/colorPrimary" />
-    <corners android:radius="20dp" /> <!-- Adjust the radius for desired roundness -->
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow -->
+    <item>
+        <shape>
+            <solid android:color="#80F8D4CE" /> <!-- Adjust the shadow color and opacity -->
+            <corners android:radius="20dp" /> <!-- Adjust the radius for desired roundness -->
+        </shape>
+    </item>
+    <!-- Background -->
+    <item android:bottom="2dp" android:right="2dp" android:top="2dp" android:left="2dp">
+        <shape>
+            <solid android:color="#FCEDEB" />
+            <corners android:radius="20dp" /> <!-- Adjust the radius for desired roundness -->
+        </shape>
+    </item>
+</layer-list>

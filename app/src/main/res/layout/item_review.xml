@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:background="@drawable/round_background"
     android:padding="16dp">
 
     <!-- Top Section: User name, Edit and Delete Icons -->
@@ -20,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="User Name"
+            android:textColor="@android:color/black"
             android:textStyle="bold"
             android:textSize="18sp"
             android:layout_marginEnd="8dp"/>
@@ -57,6 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
+            android:layout_marginEnd="10dp"
             android:layout_marginStart="16dp">
 
             <!-- Book Title -->
@@ -65,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Book Title"
+                android:textColor="@android:color/black"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginBottom="4dp"/>
@@ -75,6 +80,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Author Name"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
                 android:textSize="14sp"
                 android:layout_marginBottom="4dp"/>
 
