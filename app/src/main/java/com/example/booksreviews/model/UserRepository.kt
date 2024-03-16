@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 object UserRepository {
 
     private val users : HashMap<String, User> = HashMap()
+    lateinit var currUser: FirebaseUser
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersCollection = firestore.collection("users")

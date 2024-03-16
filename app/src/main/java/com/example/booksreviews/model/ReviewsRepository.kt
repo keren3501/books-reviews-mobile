@@ -4,10 +4,12 @@ import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.FileInputStream
 import java.util.concurrent.CompletableFuture
 
 private const val TAG: String = "BookReviewsRepository"
@@ -22,6 +24,23 @@ object ReviewsRepository {
         val resultFuture = CompletableFuture<String>()
 
         GlobalScope.launch(Dispatchers.IO) {
+            val (description, coverImage) = BooksApiRepository.fetchBookInfoAndImage("book title", "book author")
+            newReview.description = description ?: ""
+
+            if (coverImage != null) {
+                val storageRef = FirebaseStorage.getInstance().reference.child("images/${coverImage!!.name}")
+
+                try {
+                    val stream = FileInputStream(coverImage)
+                    val uploadTask = storageRef.putStream(stream)
+                    uploadTask.await()
+                    stream.close()
+                    newReview.bookCoverUrl = storageRef.downloadUrl.await().toString()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             try {
                 bookReviewsCollection.add(newReview)
                     .addOnSuccessListener { documentReference ->

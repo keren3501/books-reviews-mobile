@@ -4,10 +4,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.booksreviews.model.Review
+import com.example.booksreviews.model.ReviewsRepo
 import com.example.booksreviews.model.ReviewsRepository
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.future.future
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -87,5 +90,11 @@ class ReviewsViewModel : ViewModel() {
 //            postReview(newReview)
 //        }
 //    }
+
+    fun saveReview(review: Review): CompletableFuture<Unit> {
+        return viewModelScope.future {
+            ReviewsRepo.saveReview(review)
+        }
+    }
 
 }
