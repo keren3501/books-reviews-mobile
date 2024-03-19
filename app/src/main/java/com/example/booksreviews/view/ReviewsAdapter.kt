@@ -12,6 +12,8 @@ import com.example.booksreviews.R
 import com.example.booksreviews.databinding.ItemReviewBinding
 import com.example.booksreviews.model.Review
 import com.example.booksreviews.model.UserRepository
+import java.io.File
+import java.net.URL
 
 class ReviewsAdapter(
     private val currUserId: String,
@@ -45,16 +47,33 @@ class ReviewsAdapter(
             }
 
             // Launch a coroutine to call the suspend function
-            val username = UserRepository.getUsernameFromUserId(review.userId)
-            if (username != null) {
-                binding.username.text = username
-                // Use the username as needed
-                println("Username: $username")
-            } else {
-                binding.username.text = review.userId
-                // Handle the case where no username was found
-                println("Username not found")
+            val userData = UserRepository.getCachedUserById(review.userId)
+
+            var usernameStr = review.userId
+
+            if (userData != null) {
+                if (userData.username != null) {
+                    usernameStr = userData.username
+                }
+
+                Glide.with(binding.root.context)
+                    .load(File(Environment.getExternalStorageDirectory(), "${userData.id}.png"))
+                    .error(R.drawable.reader_icon)
+                    .override(40, 40)
+                    .into(binding.userPhotoImageView)
             }
+
+            binding.username.text = usernameStr
+//            val username = UserRepository.getUsernameFromUserId(review.userId)
+//            if (username != null) {
+//                binding.username.text = username
+//                // Use the username as needed
+//                println("Username: $username")
+//            } else {
+//                binding.username.text = review.userId
+//                // Handle the case where no username was found
+//                println("Username not found")
+//            }
 
             binding.bookTitle.text = review.bookTitle
             binding.authorName.text = review.authorName

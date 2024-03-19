@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.Editable
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 
 private const val REQUEST_CODE: Int = 100
 
@@ -82,7 +84,6 @@ class MyAccountFragment : Fragment() {
 
         currUser = userViewModel.user
 
-        currImageUri = currUser.photoUrl!!
         currUsername = Editable.Factory.getInstance().newEditable(currUser.displayName)
 
         binding.profileImage.isClickable = false
@@ -110,7 +111,7 @@ class MyAccountFragment : Fragment() {
 
     private fun cancelChanges() {
         Glide.with(this)
-            .load(currUser.photoUrl)
+            .load(File(Environment.getExternalStorageDirectory(), "${currUser.uid}.png"))
             .error(R.drawable.reader_icon)
             .into(binding.profileImage)
         binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
@@ -136,9 +137,6 @@ class MyAccountFragment : Fragment() {
 
                 // Now you can save 'uri' for later use
                 currImageUri = uri
-
-                val storageRef = FirebaseStorage.getInstance().reference.child("covers/${currImageUri}")
-                storageRef.putFile(currImageUri)
             }
         }
     }
@@ -199,7 +197,7 @@ class MyAccountFragment : Fragment() {
 
     private fun loadUserData() {
         Glide.with(this)
-            .load(currUser.photoUrl)
+            .load(File(Environment.getExternalStorageDirectory(), "${currUser.uid}.png"))
             .error(R.drawable.reader_icon)
             .into(binding.profileImage)
 

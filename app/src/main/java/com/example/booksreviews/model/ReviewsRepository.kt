@@ -145,14 +145,18 @@ object ReviewsRepository {
 
     suspend fun getAllBookReviews(): List<Review> = withContext(Dispatchers.IO) {
         try {
+            UserRepository.clearCache()
+
             val reviews = bookReviewsCollection.orderBy("timestamp", Query.Direction.DESCENDING)
                 .get().await().toObjects(Review::class.java)
 
             // Iterate through each review to check and fetch images if needed
             for (review in reviews) {
-                val imageFileName = "${review.bookTitle}_${review.authorName}.png"
+                UserRepository.fetchUserDataWithCache(review.userId)
+
+                val imageFileName = "${review.bookTitle}_${review.authorName}"
                 val localImageFile =
-                    File(Environment.getExternalStorageDirectory().absolutePath + "/" + imageFileName)
+                    File(Environment.getExternalStorageDirectory().absolutePath + "/" + imageFileName + ".png")
 
                 if (!localImageFile.exists()) {
                     fetchImageFromStorage(imageFileName)
@@ -173,11 +177,9 @@ object ReviewsRepository {
             try {
                 // Fetch image from Firebase Storage
                 val storageReference =
-                    FirebaseStorage.getInstance().reference.child("covers/${imageName}")
-                val localFile = File.createTempFile(
-                    Environment.getDownloadCacheDirectory().absolutePath + "/" + imageName,
-                    "png"
-                )
+                    FirebaseStorage.getInstance().reference.child("covers/${imageName}.png")
+                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/" + imageName + ".png")
+                localFile.createNewFile()
 
                 storageReference.getFile(localFile).await()
 

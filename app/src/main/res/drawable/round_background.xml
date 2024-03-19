@@ -2,14 +2,14 @@
     <!-- Shadow -->
     <item>
         <shape>
-            <solid android:color="#80F8D4CE" /> <!-- Adjust the shadow color and opacity -->
+            <solid android:color="#80D8DDFB" /> <!-- Adjust the shadow color and opacity -->
             <corners android:radius="20dp" /> <!-- Adjust the radius for desired roundness -->
         </shape>
     </item>
     <!-- Background -->
     <item android:bottom="2dp" android:right="2dp" android:top="2dp" android:left="2dp">
         <shape>
-            <solid android:color="#FCEDEB" />
+            <solid android:color="#E7EAFC" />
             <corners android:radius="20dp" /> <!-- Adjust the radius for desired roundness -->
         </shape>
     </item>
