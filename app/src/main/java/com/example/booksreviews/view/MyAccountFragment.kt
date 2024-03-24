@@ -1,6 +1,7 @@
 package com.example.booksreviews.view;
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -13,7 +14,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -25,10 +25,9 @@ import com.example.booksreviews.databinding.FragmentMyAccountBinding
 import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 private const val REQUEST_CODE: Int = 100
 
@@ -39,7 +38,8 @@ class MyAccountFragment : Fragment() {
     private lateinit var currUsername: Editable
     private lateinit var userViewModel: UserViewModel
     private lateinit var reviewsViewModel: ReviewsViewModel
-    private lateinit var currUser: FirebaseUser
+    private lateinit var currUserId: String
+    private var currDisplayName: String? = null
     private var isEditing: Boolean = false
 
     override fun onCreateView(
@@ -82,9 +82,10 @@ class MyAccountFragment : Fragment() {
         userViewModel = viewModelProvider[UserViewModel::class.java]
         reviewsViewModel = viewModelProvider[ReviewsViewModel::class.java]
 
-        currUser = userViewModel.user
+        currUserId = userViewModel.userId!!
+        currDisplayName = UserRepository.getUsernameFromUserId(currUserId)
 
-        currUsername = Editable.Factory.getInstance().newEditable(currUser.displayName)
+        currUsername = Editable.Factory.getInstance().newEditable(currDisplayName)
 
         binding.profileImage.isClickable = false
 
@@ -111,10 +112,10 @@ class MyAccountFragment : Fragment() {
 
     private fun cancelChanges() {
         Glide.with(this)
-            .load(File(Environment.getExternalStorageDirectory(), "${currUser.uid}.png"))
+            .load(File(Environment.getExternalStorageDirectory(), "users/${currUserId}.png"))
             .error(R.drawable.reader_icon)
             .into(binding.profileImage)
-        binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
+        binding.username.text = Editable.Factory.getInstance().newEditable(currDisplayName)
         finishEditing()
     }
 
@@ -169,53 +170,67 @@ class MyAccountFragment : Fragment() {
 
     private fun saveChanges() {
         // Set username as display name
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setDisplayName(binding.username.text.toString())
-            .setPhotoUri(currImageUri) // Set default avatar image
-            .build()
+        UserRepository.updateUserInFirestore(userViewModel.userId!!, binding.username.text.toString(), currImageUri)
 
-        userViewModel.user.updateProfile(profileUpdates)
-            .addOnCompleteListener { profileTask ->
-                if (profileTask.isSuccessful) {
-                    // Disable editing mode
-                    UserRepository.updateUserInFirestore(userViewModel.user)
-                    finishEditing()
-                    // Save changes to Firebase or perform any other necessary action
-                } else {
-                    // Failed to update profile
-                    // Handle the error
-                    val errorMessage = profileTask.exception?.message ?: "Unknown error"
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                    binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
-                    Glide.with(this)
-                        .load(userViewModel.user.photoUrl)
-                        .error(R.drawable.reader_icon)
-                        .into(binding.profileImage)
-                }
+        if (::currImageUri.isInitialized) {
+            context?.let {
+                saveUriToFile(
+                    it,
+                    currImageUri,
+                    "users/" + userViewModel.userId + ".png"
+                )
             }
+        }
+
+        finishEditing()
+    }
+
+    fun saveUriToFile(context: Context, uri: Uri, filename: String): File? {
+        try {
+            // Create a file object with the desired name
+            val file = File(Environment.getExternalStorageDirectory(), filename)
+
+            // Open an input stream from the URI
+            val inputStream: InputStream = context.contentResolver.openInputStream(uri) ?: return null
+
+            // Open an output stream to the file
+            val outputStream = FileOutputStream(file)
+
+            // Copy content from input stream to output stream
+            inputStream.copyTo(outputStream)
+
+            // Close streams
+            inputStream.close()
+            outputStream.close()
+
+            return file
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     private fun loadUserData() {
         Glide.with(this)
-            .load(File(Environment.getExternalStorageDirectory(), "${currUser.uid}.png"))
+            .load(File(Environment.getExternalStorageDirectory(), "users/${currUserId}.png"))
             .error(R.drawable.reader_icon)
             .into(binding.profileImage)
 
         // Load user's profile image and username
-        binding.username.text = Editable.Factory.getInstance().newEditable(currUser.displayName)
+        binding.username.text = Editable.Factory.getInstance().newEditable(currDisplayName)
     }
 
     private fun loadUserReviews() {
         // Load user's reviews into RecyclerView
-        val reviewsAdapter = ReviewsAdapter(userViewModel.user.uid, null, null, false)
+        val reviewsAdapter = ReviewsAdapter(currUserId, null, null, false)
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = reviewsAdapter
 
         // get only my reviews data from ViewModel
-        reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.uid))
+        reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUserId))
 
         reviewsViewModel.reviewsLiveData.observe(viewLifecycleOwner) {
-            reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUser.uid))
+            reviewsAdapter.submitList(reviewsViewModel.getReviewsByUser(currUserId))
         }
     }
 }

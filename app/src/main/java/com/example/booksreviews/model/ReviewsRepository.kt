@@ -71,7 +71,7 @@ object ReviewsRepository {
         // Check if the cover image exists locally
         val localImageName = "${title}_${author}"
         val localImageFile =
-            File(Environment.getExternalStorageDirectory(), "${localImageName}.png")
+            File(Environment.getExternalStorageDirectory(), "covers/${localImageName}.png")
 
         return if (!localImageFile.exists()) {
             // If the cover image doesn't exist locally, download and save it
@@ -156,7 +156,7 @@ object ReviewsRepository {
 
                 val imageFileName = "${review.bookTitle}_${review.authorName}"
                 val localImageFile =
-                    File(Environment.getExternalStorageDirectory().absolutePath + "/" + imageFileName + ".png")
+                    File(Environment.getExternalStorageDirectory().absolutePath + "/covers/" + imageFileName + ".png")
 
                 if (!localImageFile.exists()) {
                     fetchImageFromStorage(imageFileName)
@@ -178,7 +178,7 @@ object ReviewsRepository {
                 // Fetch image from Firebase Storage
                 val storageReference =
                     FirebaseStorage.getInstance().reference.child("covers/${imageName}.png")
-                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/" + imageName + ".png")
+                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/covers/" + imageName + ".png")
                 localFile.createNewFile()
 
                 storageReference.getFile(localFile).await()

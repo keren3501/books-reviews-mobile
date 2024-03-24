@@ -99,18 +99,18 @@ object UserRepository {
         }
     }
 
-    fun updateUserInFirestore(user: FirebaseUser) {
+    fun updateUserInFirestore(userId: String, displayName: String, photoUri: Uri) {
         val userData = hashMapOf<String, Any?>(
-            "username" to user.displayName,
-            "photoUrl" to user.photoUrl.toString()
+            "username" to displayName,
+            "photoUrl" to photoUri.toString()
         )
 
-        if (user.photoUrl != null) {
-            val storageRef = FirebaseStorage.getInstance().reference.child("users/${user.uid}.png")
-            storageRef.putFile(user.photoUrl!!)
+        if (photoUri != null) {
+            val storageRef = FirebaseStorage.getInstance().reference.child("users/${userId}.png")
+            storageRef.putFile(photoUri)
         }
 
-        usersCollection.document(user.uid)
+        usersCollection.document(userId)
             .update(userData)
             .addOnSuccessListener {
                 // User updated successfully
@@ -122,7 +122,7 @@ object UserRepository {
 
     // Function to get the username from Firestore given a user ID using coroutines
     fun getUsernameFromUserId(userId: String): String? {
-        return if (users.containsKey(userId)) users[userId]!!.username else null
+        return if (userCache.containsKey(userId)) userCache[userId]!!.username else null
     }
 
     private suspend fun uploadUserImageToStorage(localImagePath: String) {
@@ -147,7 +147,7 @@ object UserRepository {
                 // Fetch image from Firebase Storage
                 val storageReference =
                     FirebaseStorage.getInstance().reference.child("users/${userId}.png")
-                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/" + userId + ".png")
+                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/users/" + userId + ".png")
 
                 if (!localFile.exists()) {
                     localFile.createNewFile()
