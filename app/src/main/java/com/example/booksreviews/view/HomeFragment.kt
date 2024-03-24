@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentHomeBinding
+import com.example.booksreviews.model.UserSharedPreferences
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -54,7 +55,7 @@ class HomeFragment : Fragment() {
 
         // Set up RecyclerView and adapter
         adapter = ReviewsAdapter(
-            viewModelProvider[UserViewModel::class.java].user.uid,
+            viewModelProvider[UserViewModel::class.java].userId!!,
             { review -> onDeleteReviewClicked(review) },
             { review -> onEditReviewClicked(review) },
             true)
@@ -78,6 +79,7 @@ class HomeFragment : Fragment() {
 
         reviewsViewModel.isLoading.observe(viewLifecycleOwner) {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+            binding.recyclerView.visibility = if (it) View.GONE else View.VISIBLE
         }
     }
 
@@ -96,6 +98,7 @@ class HomeFragment : Fragment() {
         when (item.itemId) {
             R.id.action_logout -> {
                 FirebaseAuth.getInstance().signOut()
+                context?.let { UserSharedPreferences.clearUser(it) }
                 navigateToLogin()
                 return true
             }

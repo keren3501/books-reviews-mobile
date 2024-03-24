@@ -41,7 +41,7 @@ class EditReviewDialog(context: Context,
         }
         else {
             newReview = Review()
-            newReview.userId = userViewModel.user.uid
+            newReview.userId = userViewModel.userId!!
         }
 
         alertDialog = AlertDialog.Builder(context)

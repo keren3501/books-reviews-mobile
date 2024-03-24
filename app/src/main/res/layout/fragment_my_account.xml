@@ -47,7 +47,7 @@
         android:visibility="gone"
         android:layout_below="@id/btnEditProfile"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="2dp"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -63,9 +63,9 @@
         android:id="@+id/reviewsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btnEditProfile"
+        android:layout_below="@id/btnCancelProfile"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_review"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="5dp"/>
 
 </RelativeLayout>

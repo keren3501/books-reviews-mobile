@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentLoginBinding
 import com.example.booksreviews.model.UserRepository
+import com.example.booksreviews.model.UserSharedPreferences
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -139,7 +140,8 @@ class LoginFragment : Fragment() {
         if (task.isSuccessful) {
             // Registration success, user is signed in automatically
             val user = FirebaseAuth.getInstance().currentUser!!
-            userViewModel.user = user
+            userViewModel.userId = user.uid
+            context?.let { UserSharedPreferences.saveUser(it, user.uid) }
 
             if (isLogin) {
                 findNavController().navigate(R.id.action_loginFragment_to_homeFragment)

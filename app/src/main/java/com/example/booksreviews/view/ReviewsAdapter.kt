@@ -57,7 +57,7 @@ class ReviewsAdapter(
                 }
 
                 Glide.with(binding.root.context)
-                    .load(File(Environment.getExternalStorageDirectory(), "${userData.id}.png"))
+                    .load(File(Environment.getExternalStorageDirectory(), "users/${userData.id}.png"))
                     .error(R.drawable.reader_icon)
                     .override(40, 40)
                     .into(binding.userPhotoImageView)
@@ -80,7 +80,7 @@ class ReviewsAdapter(
             binding.reviewText.text = review.reviewText
 
             Glide.with(binding.root.context)
-                .load(Environment.getExternalStorageDirectory().absolutePath + "/${review.bookTitle}_${review.authorName}.png")
+                .load(Environment.getExternalStorageDirectory().absolutePath + "/covers/${review.bookTitle}_${review.authorName}.png")
                 .error(R.drawable.no_cover)
                 .override(100, 158)
                 .into(binding.coverImage)
