@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -58,7 +59,8 @@ class HomeFragment : Fragment() {
             viewModelProvider[UserViewModel::class.java].userId!!,
             { review -> onDeleteReviewClicked(review) },
             { review -> onEditReviewClicked(review) },
-            true)
+            true,
+            userViewModel)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -86,7 +88,10 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        reviewsViewModel.getAllBookReviews()
+        if (userViewModel.hasUserChanged) {
+            reviewsViewModel.getAllBookReviews()
+            userViewModel.hasUserChanged = false
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -103,11 +108,21 @@ class HomeFragment : Fragment() {
                 return true
             }
             R.id.action_my_account -> {
-                navigateToMyAccount()
+                if (!reviewsViewModel.isLoading.value!!) {
+                    navigateToMyAccount()
+                }
+                else {
+                    Toast.makeText(context, "still reading reviews..", Toast.LENGTH_SHORT).show()
+                }
                 return true
             }
             R.id.refresh_reviews -> {
-                reviewsViewModel.getAllBookReviews()
+                if (!reviewsViewModel.isLoading.value!!) {
+                    reviewsViewModel.getAllBookReviews()
+                }
+                else {
+                    Toast.makeText(context, "still reading reviews..", Toast.LENGTH_SHORT).show()
+                }
                 return true
             }
             // Add more menu items as needed

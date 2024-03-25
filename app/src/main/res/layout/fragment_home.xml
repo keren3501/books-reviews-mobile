@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="10dp">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -40,6 +40,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/colorPrimaryLight"
         android:src="@android:drawable/ic_input_add" />
 
 </RelativeLayout>
