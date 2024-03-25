@@ -10,11 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.ItemReviewBinding
+import com.example.booksreviews.model.ImageRepository
 import com.example.booksreviews.model.Review
-import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.UserViewModel
 import java.io.File
-import java.net.URL
 
 class ReviewsAdapter(
     private val currUserId: String,
@@ -71,8 +70,10 @@ class ReviewsAdapter(
             binding.authorName.text = review.authorName
             binding.reviewText.text = review.reviewText
 
+            val image = ImageRepository.getCachedImage(review.bookCoverUrl)
             Glide.with(binding.root.context)
-                .load(Environment.getExternalStorageDirectory().absolutePath + "/covers/${review.bookTitle}_${review.authorName}.png")
+                .asBitmap()
+                .load(image)
                 .error(R.drawable.no_cover)
                 .override(100, 158)
                 .into(binding.coverImage)

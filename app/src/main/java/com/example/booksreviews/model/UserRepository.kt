@@ -23,11 +23,6 @@ object UserRepository {
     private val storageRef = FirebaseStorage.getInstance().reference
 
     suspend fun fetchUserDataWithCache(userId: String): User? {
-        // Check if user data is already available in the cache
-        if (userCache.containsKey(userId)) {
-            return userCache[userId]
-        }
-
         // If user data is not in the cache, fetch it from Firestore
         return try {
             val documentSnapshot = usersCollection.document(userId).get().await()
