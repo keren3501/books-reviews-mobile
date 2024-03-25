@@ -91,11 +91,10 @@ class MainActivity : AppCompatActivity() {
             val userViewModel = viewModelProvider[UserViewModel::class.java]
             userViewModel.userId = userId
 
-            CoroutineScope(Dispatchers.IO).launch {
-                UserRepository.fetchUserDataWithCache(userId)
-                // User data exists, automatically log in the user
-                // You can navigate to the home screen or perform any other necessary actions here
-            }
+            userViewModel.fetchUserData(userId)
+
+            // User data exists, automatically log in the user
+            // You can navigate to the home screen or perform any other necessary actions here
             navController.navigate(R.id.action_loginFragment_to_homeFragment)
         } else {
             // User data doesn't exist, the user needs to log in

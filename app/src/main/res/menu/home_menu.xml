@@ -15,6 +15,7 @@
         android:id="@+id/refresh_reviews"
         android:icon="@drawable/baseline_refresh_24"
         app:showAsAction="ifRoom"
+        android:iconTint="@android:color/white"
         android:title="refresh reviews" />
 
     <!-- Add more menu items as needed -->

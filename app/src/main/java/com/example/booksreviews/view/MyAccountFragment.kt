@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.booksreviews.R
 import com.example.booksreviews.databinding.FragmentMyAccountBinding
-import com.example.booksreviews.model.UserRepository
 import com.example.booksreviews.viewmodel.ReviewsViewModel
 import com.example.booksreviews.viewmodel.UserViewModel
 import java.io.File
@@ -34,7 +33,7 @@ private const val REQUEST_CODE: Int = 100
 class MyAccountFragment : Fragment() {
 
     private lateinit var binding: FragmentMyAccountBinding
-    private lateinit var currImageUri: Uri
+    private var currImageUri: Uri? = null
     private lateinit var currUsername: Editable
     private lateinit var userViewModel: UserViewModel
     private lateinit var reviewsViewModel: ReviewsViewModel
@@ -57,6 +56,12 @@ class MyAccountFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.my_account_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val menuItem = menu.findItem(R.menu.my_account_menu)
+        menuItem?.isEnabled = !userViewModel.isLoading.value!! // Enable or disable based on the LiveData value
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -83,7 +88,7 @@ class MyAccountFragment : Fragment() {
         reviewsViewModel = viewModelProvider[ReviewsViewModel::class.java]
 
         currUserId = userViewModel.userId!!
-        currDisplayName = UserRepository.getUsernameFromUserId(currUserId)
+        currDisplayName = userViewModel.getUsernameFromUserId(currUserId)
 
         currUsername = Editable.Factory.getInstance().newEditable(currDisplayName)
 
@@ -105,8 +110,9 @@ class MyAccountFragment : Fragment() {
             cancelChanges()
         }
 
-        reviewsViewModel.isLoading.observe(viewLifecycleOwner) {
+        userViewModel.isLoading.observe(viewLifecycleOwner) {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+            activity?.invalidateOptionsMenu()
         }
     }
 
@@ -170,18 +176,19 @@ class MyAccountFragment : Fragment() {
 
     private fun saveChanges() {
         // Set username as display name
-        UserRepository.updateUserInFirestore(userViewModel.userId!!, binding.username.text.toString(), currImageUri)
+        userViewModel.updateUser(userViewModel.userId!!, binding.username.text.toString(), currImageUri)
 
-        if (::currImageUri.isInitialized) {
+        if (currImageUri != null) {
             context?.let {
                 saveUriToFile(
                     it,
-                    currImageUri,
+                    currImageUri!!,
                     "users/" + userViewModel.userId + ".png"
                 )
             }
         }
 
+        userViewModel.hasUserChanged = true
         finishEditing()
     }
 
@@ -222,7 +229,7 @@ class MyAccountFragment : Fragment() {
 
     private fun loadUserReviews() {
         // Load user's reviews into RecyclerView
-        val reviewsAdapter = ReviewsAdapter(currUserId, null, null, false)
+        val reviewsAdapter = ReviewsAdapter(currUserId, null, null, false, userViewModel)
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = reviewsAdapter
 

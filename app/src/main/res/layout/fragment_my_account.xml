@@ -53,9 +53,8 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
         android:layout_below="@id/btnCancelProfile"
-        android:layout_above="@id/reviewsRecyclerView"
         android:visibility="gone" />
 
     <!-- Reviews RecyclerView -->
@@ -63,7 +62,7 @@
         android:id="@+id/reviewsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btnCancelProfile"
+        android:layout_below="@id/progressBar"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_review"
         android:layout_marginTop="5dp"/>

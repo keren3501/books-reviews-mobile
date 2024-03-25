@@ -159,7 +159,7 @@ class LoginFragment : Fragment() {
                     .addOnCompleteListener { profileTask ->
                         if (profileTask.isSuccessful) {
                             // Registration and profile update successful
-                            UserRepository.addUserToFirestore(user)
+                            userViewModel.addUser(user)
                             findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
                         } else {
                             // Failed to update profile

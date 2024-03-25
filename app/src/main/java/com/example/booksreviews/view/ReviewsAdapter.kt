@@ -12,6 +12,7 @@ import com.example.booksreviews.R
 import com.example.booksreviews.databinding.ItemReviewBinding
 import com.example.booksreviews.model.Review
 import com.example.booksreviews.model.UserRepository
+import com.example.booksreviews.viewmodel.UserViewModel
 import java.io.File
 import java.net.URL
 
@@ -19,13 +20,14 @@ class ReviewsAdapter(
     private val currUserId: String,
     private val onDeleteClickListener: ((Int) -> Unit)?,
     private val onEditClickListener: ((Int) -> Unit)?,
-    private val inFeed: Boolean
+    private val inFeed: Boolean,
+    private val userViewModel: UserViewModel
 ) : ListAdapter<Review, ReviewsAdapter.ReviewViewHolder>(ReviewDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemReviewBinding.inflate(inflater, parent, false)
-        return ReviewViewHolder(binding, currUserId, onDeleteClickListener, onEditClickListener, inFeed)
+        return ReviewViewHolder(binding, currUserId, onDeleteClickListener, onEditClickListener, inFeed, userViewModel)
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
@@ -36,7 +38,8 @@ class ReviewsAdapter(
                            private val currUserId: String,
                            private val onDeleteClickListener: ((Int) -> Unit)?,
                            private val onEditClickListener: ((Int) -> Unit)?,
-                           private val inFeed: Boolean
+                           private val inFeed: Boolean,
+                           private val userViewModel: UserViewModel
     ) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -47,7 +50,7 @@ class ReviewsAdapter(
             }
 
             // Launch a coroutine to call the suspend function
-            val userData = UserRepository.getCachedUserById(review.userId)
+            val userData = userViewModel.getCachedUserById(review.userId)
 
             var usernameStr = review.userId
 
@@ -64,17 +67,6 @@ class ReviewsAdapter(
             }
 
             binding.username.text = usernameStr
-//            val username = UserRepository.getUsernameFromUserId(review.userId)
-//            if (username != null) {
-//                binding.username.text = username
-//                // Use the username as needed
-//                println("Username: $username")
-//            } else {
-//                binding.username.text = review.userId
-//                // Handle the case where no username was found
-//                println("Username not found")
-//            }
-
             binding.bookTitle.text = review.bookTitle
             binding.authorName.text = review.authorName
             binding.reviewText.text = review.reviewText

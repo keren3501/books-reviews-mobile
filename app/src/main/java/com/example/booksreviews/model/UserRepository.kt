@@ -17,10 +17,10 @@ object UserRepository {
 
     // Local cache to store user data
     private val userCache: MutableMap<String, User> = mutableMapOf()
-    private val users : HashMap<String, User> = HashMap()
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersCollection = firestore.collection("users")
+    private val storageRef = FirebaseStorage.getInstance().reference
 
     suspend fun fetchUserDataWithCache(userId: String): User? {
         // Check if user data is already available in the cache
@@ -30,7 +30,7 @@ object UserRepository {
 
         // If user data is not in the cache, fetch it from Firestore
         return try {
-            val documentSnapshot = FirebaseFirestore.getInstance().collection("users").document(userId).get().await()
+            val documentSnapshot = usersCollection.document(userId).get().await()
             val userData = documentSnapshot.toObject(User::class.java)
             if (userData != null) {
                 fetchUserImageFromStorage(userId)
@@ -44,7 +44,7 @@ object UserRepository {
         }
     }
 
-    fun addUserToFirestore(user: FirebaseUser) {
+    suspend fun addUserToFirestore(user: FirebaseUser) {
         val userData = hashMapOf(
             "id" to user.uid,
             "username" to user.displayName,
@@ -52,101 +52,48 @@ object UserRepository {
         )
 
         if (user.photoUrl != null) {
-            val storageRef = FirebaseStorage.getInstance().reference.child("users/${user.uid}.png")
-            storageRef.putFile(user.photoUrl!!)
+            val storageRef = storageRef.child("users/${user.uid}.png")
+            storageRef.putFile(user.photoUrl!!).await()
         }
 
         usersCollection.document(user.uid)
             .set(userData)
-            .addOnSuccessListener {
-                // User added successfully
-            }
-            .addOnFailureListener { e ->
-                // Error adding user
-            }
+            .await() // Wait for the operation to complete
     }
 
-    fun getCachedUserById(userId: String) : User? {
-        return if (userCache.containsKey(userId)) userCache[userId] else null
+    fun getCachedUserById(userId: String): User? {
+        return userCache[userId]
     }
 
     fun clearCache() {
         userCache.clear()
     }
 
-    fun getUserById(userId: String) {
-        if (!users.containsKey(userId)) {
-            // Query the Firestore collection to get the user document with the provided user ID
-            usersCollection
-                .document(userId)
-                .get().addOnSuccessListener { document ->
-
-
-                    if (document != null && document.exists()) {
-                        // Document exists, you can access its data here
-                        val user = document.toObject(User::class.java)
-                        users[userId] = user!!
-                        // Use the userName or other data as needed
-                    } else {
-                        // Document doesn't exist or is null
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    {
-
-                    }
-                }
-        }
-    }
-
-    fun updateUserInFirestore(userId: String, displayName: String, photoUri: Uri) {
+    suspend fun updateUserInFirestore(userId: String, displayName: String, photoUri: Uri?) {
         val userData = hashMapOf<String, Any?>(
-            "username" to displayName,
-            "photoUrl" to photoUri.toString()
+            "username" to displayName
         )
 
         if (photoUri != null) {
-            val storageRef = FirebaseStorage.getInstance().reference.child("users/${userId}.png")
-            storageRef.putFile(photoUri)
+            userData["photoUrl"] = photoUri.toString()
+            val storageRef = storageRef.child("users/${userId}.png")
+            storageRef.putFile(photoUri).await()
         }
 
         usersCollection.document(userId)
             .update(userData)
-            .addOnSuccessListener {
-                // User updated successfully
-            }
-            .addOnFailureListener { e ->
-                // Error updating user
-            }
+            .await() // Wait for the operation to complete
     }
 
-    // Function to get the username from Firestore given a user ID using coroutines
     fun getUsernameFromUserId(userId: String): String? {
-        return if (userCache.containsKey(userId)) userCache[userId]!!.username else null
-    }
-
-    private suspend fun uploadUserImageToStorage(localImagePath: String) {
-        try {
-            val storageReference =
-                FirebaseStorage.getInstance().reference.child("users/${File(localImagePath).name}")
-            val uri = Uri.fromFile(File(localImagePath))
-            storageReference.putFile(uri).await()
-            Log.d(TAG, "Cover image uploaded successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error uploading cover image to Firebase Storage", e)
-            throw e
-        }
+        return userCache[userId]?.username
     }
 
     private suspend fun fetchUserImageFromStorage(userId: String): File? {
-        // Implement fetching image from Firebase Storage
-        // Save the fetched image locally and return the file path
-        // Use coroutine to perform asynchronous operations
         return withContext(Dispatchers.IO) {
             try {
-                // Fetch image from Firebase Storage
                 val storageReference =
-                    FirebaseStorage.getInstance().reference.child("users/${userId}.png")
+                    storageRef.child("users/${userId}.png")
                 val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/users/" + userId + ".png")
 
                 if (!localFile.exists()) {
@@ -157,10 +104,9 @@ object UserRepository {
 
                 localFile // Return the local image file
             } catch (e: Exception) {
-                Log.e("ReviewsViewModel", "Error fetching image from Firebase Storage", e)
+                Log.e(TAG, "Error fetching image from Firebase Storage", e)
                 null
             }
         }
     }
-
 }
