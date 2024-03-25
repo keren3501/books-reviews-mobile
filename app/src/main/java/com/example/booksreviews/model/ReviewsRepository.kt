@@ -17,13 +17,29 @@ import java.net.URL
 
 private const val TAG: String = "BookReviewsRepository"
 
+/**
+ * Data class representing book details fetched from an external API.
+ *
+ * @property title The title of the book.
+ * @property authors The list of authors of the book.
+ * @property coverUrl The URL of the book's cover image.
+ */
 data class BookDetails(val title: String, val authors: List<String>, val coverUrl: String)
 
+/**
+ * Repository responsible for managing book reviews and related operations.
+ */
 object ReviewsRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val bookReviewsCollection = db.collection("bookReviews")
 
+    /**
+     * Adds a new book review to the Firestore collection.
+     *
+     * @param newReview The review to be added.
+     * @return The ID of the newly added review.
+     */
     suspend fun addBookReview(newReview: Review): String = withContext(Dispatchers.IO) {
         try {
             // Fetch book details from API
@@ -59,6 +75,12 @@ object ReviewsRepository {
         }
     }
 
+    /**
+     * Saves the cover image locally.
+     *
+     * @param coverImageUrl The URL of the cover image.
+     * @return The URL of the saved cover image.
+     */
     private suspend fun saveCoverImageLocally(coverImageUrl: String): String {
         if (ImageRepository.getCachedImage(coverImageUrl) == null) {
             downloadImageLocally(coverImageUrl)
@@ -67,6 +89,13 @@ object ReviewsRepository {
         return coverImageUrl
     }
 
+    /**
+     * Fetches book details from an external API.
+     *
+     * @param title The title of the book.
+     * @param authors The author(s) of the book.
+     * @return BookDetails object containing details fetched from the API.
+     */
     private fun fetchBookDetailsFromAPI(title: String, authors: String): BookDetails {
         try {
             val apiUrl =
@@ -90,30 +119,11 @@ object ReviewsRepository {
         return BookDetails("", emptyList(), "")
     }
 
-    private suspend fun downloadImageLocally(imageUrl: String, file: File) {
-        withContext(Dispatchers.IO) {
-            try {
-                Log.d(TAG, imageUrl)
-                val url = URL(imageUrl)
-                val connection = url.openConnection()
-                connection.connect()
-                val inputStream = connection.getInputStream()
-                val outputStream = FileOutputStream(file)
-                val buffer = ByteArray(1024)
-                var bytesRead = inputStream.read(buffer)
-                while (bytesRead != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                    bytesRead = inputStream.read(buffer)
-                }
-                outputStream.close()
-                inputStream.close()
-            } catch (e: Exception) {
-                Log.e(TAG, "Error downloading image", e)
-                throw e
-            }
-        }
-    }
-
+    /**
+     * Downloads an image locally and saves to db of cached images.
+     *
+     * @param imageUrl The URL of the image to download.
+     */
     private suspend fun downloadImageLocally(imageUrl: String) {
         withContext(Dispatchers.IO) {
             try {
@@ -145,19 +155,11 @@ object ReviewsRepository {
         }
     }
 
-    private suspend fun uploadCoverImageToStorage(localImagePath: String) {
-        try {
-            val storageReference =
-                FirebaseStorage.getInstance().reference.child("covers/${File(localImagePath).name}")
-            val uri = Uri.fromFile(File(localImagePath))
-            storageReference.putFile(uri).await()
-            Log.d(TAG, "Cover image uploaded successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error uploading cover image to Firebase Storage", e)
-            throw e
-        }
-    }
-
+    /**
+     * Retrieves all book reviews from the Firestore collection.
+     *
+     * @return A list of all book reviews.
+     */
     suspend fun getAllBookReviews(): List<Review> = withContext(Dispatchers.IO) {
         try {
             UserRepository.clearCache()
@@ -180,6 +182,13 @@ object ReviewsRepository {
         }
     }
 
+    /**
+     * Edits an existing book review.
+     *
+     * @param reviewId The ID of the review to edit.
+     * @param updatedReview The updated review data.
+     * @return True if the review was successfully edited, false otherwise.
+     */
     suspend fun editBookReview(reviewId: String, updatedReview: Review): Boolean =
         withContext(Dispatchers.IO) {
             try {
@@ -233,6 +242,12 @@ object ReviewsRepository {
             }
         }
 
+    /**
+     * Deletes a book review from the Firestore collection.
+     *
+     * @param reviewId The ID of the review to delete.
+     * @return True if the review was successfully deleted, false otherwise.
+     */
     suspend fun deleteBookReview(reviewId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             bookReviewsCollection.document(reviewId)

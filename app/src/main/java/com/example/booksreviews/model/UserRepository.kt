@@ -13,6 +13,9 @@ import java.io.File
 
 private const val TAG: String = "UserRepository"
 
+/**
+ * Repository responsible for managing user data and related operations.
+ */
 object UserRepository {
 
     // Local cache to store user data
@@ -22,6 +25,12 @@ object UserRepository {
     private val usersCollection = firestore.collection("users")
     private val storageRef = FirebaseStorage.getInstance().reference
 
+    /**
+     * Fetches user data from Firestore and caches it locally if not already cached.
+     *
+     * @param userId The ID of the user to fetch.
+     * @return The user data, or null if an error occurs.
+     */
     suspend fun fetchUserDataWithCache(userId: String): User? {
         // If user data is not in the cache, fetch it from Firestore
         return try {
@@ -39,6 +48,11 @@ object UserRepository {
         }
     }
 
+    /**
+     * Adds a new user to Firestore.
+     *
+     * @param user The Firebase user to add.
+     */
     suspend fun addUserToFirestore(user: FirebaseUser) {
         val userData = hashMapOf(
             "id" to user.uid,
@@ -56,14 +70,30 @@ object UserRepository {
             .await() // Wait for the operation to complete
     }
 
+    /**
+     * Retrieves a user from the local cache by ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The user, or null if not found in the cache.
+     */
     fun getCachedUserById(userId: String): User? {
         return userCache[userId]
     }
 
+    /**
+     * Clears the local user cache.
+     */
     fun clearCache() {
         userCache.clear()
     }
 
+    /**
+     * Updates user data in Firestore.
+     *
+     * @param userId The ID of the user to update.
+     * @param displayName The new display name for the user.
+     * @param photoUri The new photo URI for the user, if any.
+     */
     suspend fun updateUserInFirestore(userId: String, displayName: String, photoUri: Uri?) {
         val userData = hashMapOf<String, Any?>(
             "username" to displayName
@@ -80,10 +110,22 @@ object UserRepository {
             .await() // Wait for the operation to complete
     }
 
+    /**
+     * Retrieves the username of a user by ID.
+     *
+     * @param userId The ID of the user.
+     * @return The username, or null if the user is not found.
+     */
     fun getUsernameFromUserId(userId: String): String? {
         return userCache[userId]?.username
     }
 
+    /**
+     * Fetches the user's profile image from Firebase Storage.
+     *
+     * @param userId The ID of the user.
+     * @return The local file containing the user's profile image, or null if not found.
+     */
     private suspend fun fetchUserImageFromStorage(userId: String): File? {
         return withContext(Dispatchers.IO) {
             try {

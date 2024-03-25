@@ -27,7 +27,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 
-private const val RC_GOOGLE_SIGN_IN = 9001 // You can use any integer value
+private const val RC_GOOGLE_SIGN_IN = 9001
+
 class LoginFragment : Fragment() {
 
     // region Members

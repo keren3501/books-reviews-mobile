@@ -11,9 +11,6 @@ interface ImageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImage(image: CachedImage)
 
-    @Query("SELECT * FROM cached_images WHERE imageUrl = :url")
-    suspend fun getImageByUrl(url: String): CachedImage?
-
     @Query("SELECT * FROM cached_images")
     fun getAllImages(): Flow<List<CachedImage>>
 }
