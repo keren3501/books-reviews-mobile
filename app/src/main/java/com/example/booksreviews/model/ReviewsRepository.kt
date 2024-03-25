@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -36,14 +37,9 @@ object ReviewsRepository {
 
             if (bookDetails.coverUrl.isNotEmpty()) {
                 // Save cover image locally and upload to Firebase Storage
-                val localImagePath = saveCoverImageLocally(
-                    newReview.bookTitle,
-                    newReview.authorName,
-                    bookDetails.coverUrl
-                )
+                saveCoverImageLocally(bookDetails.coverUrl)
 
-                // Upload cover image to Firebase Storage if it doesn't exist
-                uploadCoverImageToStorage(localImagePath)
+                newReview.bookCoverUrl = bookDetails.coverUrl
             }
 
             // Save review to Firestore collection
@@ -63,24 +59,12 @@ object ReviewsRepository {
         }
     }
 
-    private suspend fun saveCoverImageLocally(
-        title: String,
-        author: String,
-        coverImageUrl: String
-    ): String {
-        // Check if the cover image exists locally
-        val localImageName = "${title}_${author}"
-        val localImageFile =
-            File(Environment.getExternalStorageDirectory(), "covers/${localImageName}.png")
-
-        return if (!localImageFile.exists()) {
-            // If the cover image doesn't exist locally, download and save it
-            downloadImageLocally(coverImageUrl, localImageFile)
-            localImageFile.absolutePath
-        } else {
-            // If the cover image exists locally, return its path
-            localImageFile.absolutePath
+    private suspend fun saveCoverImageLocally(coverImageUrl: String): String {
+        if (ImageRepository.getCachedImage(coverImageUrl) == null) {
+            downloadImageLocally(coverImageUrl)
         }
+
+        return coverImageUrl
     }
 
     private fun fetchBookDetailsFromAPI(title: String, authors: String): BookDetails {
@@ -130,6 +114,37 @@ object ReviewsRepository {
         }
     }
 
+    private suspend fun downloadImageLocally(imageUrl: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, imageUrl)
+                val url = URL(imageUrl)
+                val connection = url.openConnection()
+                connection.connect()
+                val inputStream = connection.getInputStream()
+                val outputStream = ByteArrayOutputStream()
+                val buffer = ByteArray(1024)
+                var bytesRead = inputStream.read(buffer)
+                while (bytesRead != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                    bytesRead = inputStream.read(buffer)
+                }
+                inputStream.close()
+
+                // Convert the ByteArrayOutputStream to a ByteArray
+                val imageData = outputStream.toByteArray()
+                outputStream.close()
+
+                // Add the image data to your local cache (Room database)
+                // Replace `addImageDataToCache` with the appropriate method to add the data to your database
+                ImageRepository.addCacheImage(imageUrl, imageData)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error downloading image", e)
+                throw e
+            }
+        }
+    }
+
     private suspend fun uploadCoverImageToStorage(localImagePath: String) {
         try {
             val storageReference =
@@ -154,40 +169,14 @@ object ReviewsRepository {
             for (review in reviews) {
                 UserRepository.fetchUserDataWithCache(review.userId)
 
-                val imageFileName = "${review.bookTitle}_${review.authorName}"
-                val localImageFile =
-                    File(Environment.getExternalStorageDirectory().absolutePath + "/covers/" + imageFileName + ".png")
-
-                if (!localImageFile.exists()) {
-                    fetchImageFromStorage(imageFileName)
+                if (ImageRepository.getCachedImage(review.bookCoverUrl) == null) {
+                    downloadImageLocally(review.bookCoverUrl)
                 }
             }
 
             reviews
         } catch (e: Exception) {
             throw e
-        }
-    }
-
-    private suspend fun fetchImageFromStorage(imageName: String): File? {
-        // Implement fetching image from Firebase Storage
-        // Save the fetched image locally and return the file path
-        // Use coroutine to perform asynchronous operations
-        return withContext(Dispatchers.IO) {
-            try {
-                // Fetch image from Firebase Storage
-                val storageReference =
-                    FirebaseStorage.getInstance().reference.child("covers/${imageName}.png")
-                val localFile = File(Environment.getExternalStorageDirectory().absolutePath + "/covers/" + imageName + ".png")
-                localFile.createNewFile()
-
-                storageReference.getFile(localFile).await()
-
-                localFile // Return the local image file
-            } catch (e: Exception) {
-                Log.e("ReviewsViewModel", "Error fetching image from Firebase Storage", e)
-                null
-            }
         }
     }
 
@@ -214,14 +203,9 @@ object ReviewsRepository {
 
                         if (bookDetails.coverUrl.isNotEmpty()) {
                             // Save cover image locally and upload to Firebase Storage
-                            val localImagePath = saveCoverImageLocally(
-                                updatedReview.bookTitle,
-                                updatedReview.authorName,
-                                bookDetails.coverUrl
-                            )
+                            saveCoverImageLocally(bookDetails.coverUrl)
 
-                            // Upload cover image to Firebase Storage if it doesn't exist
-                            uploadCoverImageToStorage(localImagePath)
+                            updatedReview.bookCoverUrl = bookDetails.coverUrl
                         }
                     }
 

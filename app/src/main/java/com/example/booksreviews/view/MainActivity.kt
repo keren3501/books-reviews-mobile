@@ -11,8 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.example.booksreviews.model.ImageCacheDatabase
 import com.example.booksreviews.R
-import com.example.booksreviews.model.UserRepository
+import com.example.booksreviews.model.ImageRepository
 import com.example.booksreviews.model.UserSharedPreferences
 import com.example.booksreviews.viewmodel.UserViewModel
 import com.google.firebase.FirebaseApp
@@ -28,6 +29,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        ImageRepository.imageDao = ImageCacheDatabase.getDatabase(this).imageDao()
+        CoroutineScope(Dispatchers.IO).launch {
+            ImageRepository.getAllCachedImages()
+        }
 
         checkManageAllFilesAccessPermission()
     }
